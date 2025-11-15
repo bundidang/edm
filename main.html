@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Console - Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* CSS ส่วนใหญ่เหมือนเดิม */
+        :root {
+            --primary-color: #ff8c00; 
+            --primary-light: #fff3e0; 
+            --secondary-color: #ff9800; 
+            --background-color: #f7f9fc;
+            --text-color: #333;
+            --sub-text-color: #777;
+            --border-color: #e0e6ed;
+            --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif; 
+            margin: 0;
+            background-color: var(--background-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 40px;
+            font-size: 26px;
+            font-weight: 700;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo .lite-text {
+            font-size: 26px; 
+            font-weight: 700; 
+            opacity: 1; 
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .sidebar {
+            width: 180px;
+            padding-right: 30px;
+            text-align: center; 
+        }
+
+        .create-event-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .create-event-button {
+            background-color: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%; 
+            height: 100px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px; 
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-bottom: 8px; 
+            transition: all 0.2s ease-in-out;
+            box-shadow: var(--shadow-light);
+        }
+
+        .create-event-button:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .create-event-text {
+            color: var(--sub-text-color); 
+            font-size: 14px; 
+            font-weight: 400; 
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+
+        .event-list-header {
+            display: flex;
+            justify-content: flex-start; 
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 0; 
+        }
+        
+        .event-list-header h2 {
+            font-size: 22px;
+            color: var(--text-color);
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .event-list {
+            padding: 0;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center; 
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            min-height: 60px;
+        }
+
+        .event-item:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .event-main-info {
+            flex-grow: 1;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: flex-start; 
+            text-align: left; 
+            height: auto; 
+            padding-left: 10px; 
+        }
+        
+        .event-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-color);
+            margin-bottom: 0; 
+            line-height: 1.3;
+        }
+
+        .event-meta-small, .event-date-right {
+            display: none; 
+        }
+
+        .event-settings {
+            display: flex;
+            flex-direction: column; 
+            align-items: flex-end; 
+            gap: 5px; 
+            margin-left: 15px;
+            align-self: center; 
+            min-width: 120px; 
+            text-align: right; 
+        }
+
+        .icon-group {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .settings-date {
+            font-size: 14px;
+            color: var(--sub-text-color);
+            white-space: nowrap; 
+        }
+
+        .btn-icon {
+            background-color: transparent;
+            border: none;
+            font-size: 18px;
+            color: var(--sub-text-color); 
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .btn-icon:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .btn-icon:hover .fa-edit {
+            color: #007bff; 
+        }
+        
+        .btn-icon:hover .fa-copy {
+            color: #28a745; 
+        }
+        
+        .btn-icon:hover .fa-trash-alt {
+            color: #dc3545; 
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Email <span class="lite-text">Console</span></div>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <a href="form.html" class="create-event-link">
+                <div class="create-event-button">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </a>
+            <p class="create-event-text">Create Event</p>
+        </div>
+
+        <div class="content">
+            <div class="event-list-header">
+                <h2>Event List</h2>
+                </div>
+            
+            <div class="event-list" id="event-list-container">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY_DELETED = 'deletedEvents';
+        const STORAGE_KEY_EVENTS = 'events'; 
+
+        // 1. โหลดสถานะรายการที่ถูกลบ
+        function getDeletedEventIds() {
+            const deletedEventsString = localStorage.getItem(STORAGE_KEY_DELETED);
+            return deletedEventsString ? JSON.parse(deletedEventsString) : [];
+        }
+
+        // 2. บันทึก ID ของรายการที่ถูกลบลงใน localStorage
+        function saveDeletedEvent(eventId) {
+            const deletedEventIds = getDeletedEventIds();
+            
+            if (!deletedEventIds.includes(eventId)) {
+                deletedEventIds.push(eventId);
+            }
+            
+            localStorage.setItem(STORAGE_KEY_DELETED, JSON.stringify(deletedEventIds));
+            console.log(`บันทึกสถานะการลบ: ${eventId}`);
+        }
+        
+        // 3. ปรับปรุง: จัดรูปแบบวันที่ให้เป็น "วัน เดือนย่ออังกฤษ ปี ค.ศ." (รองรับรูปแบบ DD/MM/YYYY และภาษาไทย)
+        function formatDateToEnglish(dateString) {
+            if (!dateString) return 'N/A';
+            
+            let dateToConvert = dateString.trim();
+
+            const thaiMonthMap = {
+                'ม.ค.': 'Jan', 'ก.พ.': 'Feb', 'มี.ค.': 'Mar', 'เม.ย.': 'Apr',
+                'พ.ค.': 'May', 'มิ.ย.': 'Jun', 'ก.ค.': 'Jul', 'ส.ค.': 'Aug',
+                'ก.ย.': 'Sep', 'ต.ค.': 'Oct', 'พ.ย.': 'Nov', 'ธ.ค.': 'Dec'
+            };
+
+            // 1. ลองจับคู่รูปแบบ DD/MM/YYYY (ที่มาจาก form.html หรือการ Duplicate ใหม่)
+            const slashMatch = dateToConvert.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (slashMatch) {
+                // DD/MM/YYYY
+                const day = slashMatch[1];
+                const monthIndex = parseInt(slashMatch[2]) - 1;
+                const yearAD = slashMatch[3];
+                const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                // ⭐️ แก้ไข: ตรวจสอบให้แน่ใจว่า monthIndex อยู่ในช่วง 0-11
+                if(monthIndex >= 0 && monthIndex <= 11) {
+                   return `${day} ${monthNamesEn[monthIndex]} ${yearAD}`;
+                } else {
+                   return `${day}/${slashMatch[2]}/${yearAD}`; // คืนค่าเป็น DD/MM/YYYY หากเดือนผิดพลาด
+                }
+            }
+
+            // 2. ลองจับคู่รูปแบบภาษาไทย (เช่น "15 พ.ย. 2568")
+            const thaiMatch = dateToConvert.match(/(\d{1,2})\s*([ก-ฮ]{2,3}\.)\s*(\d{4})/);
+
+            if (thaiMatch) {
+                const day = thaiMatch[1];
+                // ลบจุดออกก่อนค้นหา
+                const monthEn = thaiMonthMap[thaiMatch[2].replace(/\./g, '')]; 
+                const year = thaiMatch[3];
+                const yearAD = parseInt(year) > 2500 ? parseInt(year) - 543 : parseInt(year); // แปลง พ.ศ. เป็น ค.ศ.
+                return `${day} ${monthEn} ${yearAD}`;
+            }
+
+            // 3. ถ้าไม่มีรูปแบบที่เข้ากัน ให้คืนค่าเดิม
+            return dateString; 
+        }
+
+        // 4. สร้าง HTML สำหรับ Event Item
+        function createEventItemHTML(eventData) {
+            // ดึงวันที่เริ่มต้น (startDate) มาใช้แสดงผล หากไม่มีให้ใช้ date (วันที่สร้าง)
+            const rawDate = eventData.startDate || eventData.date || 'N/A';
+            const formattedDate = formatDateToEnglish(rawDate); 
+            
+            return `
+                <div class="event-item" id="${eventData.id}">
+                    <div class="event-main-info">
+                        <div class="event-title">${eventData.title}</div>
+                        </div>
+                    
+                    <div class="event-settings">
+                        <div class="icon-group">
+                            <button class="btn btn-icon" title="แก้ไข EDM" onclick="editEvent('${eventData.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon" title="ทำสำเนา EDM" onclick="duplicateEvent('${eventData.id}')"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-icon" title="ลบ EDM" onclick="deleteEventConfirmation('${eventData.id}')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <div class="settings-date">
+                            ${formattedDate}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 5. โหลดและแสดงรายการ Events ทั้งหมด
+        function loadAndRenderEvents() {
+            const eventListContainer = document.getElementById('event-list-container');
+            eventListContainer.innerHTML = ''; 
+            
+            let allEvents = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
+            const deletedEventIds = getDeletedEventIds();
+            
+            // ✳️ เพิ่มรายการ Hardcoded หากไม่มีข้อมูลใน LocalStorage (เพื่อให้มีข้อมูลเริ่มต้น)
+            if (allEvents.length === 0) {
+                const hardcodedEvents = [
+                    { 
+                        id: 'event-h1', 
+                        title: 'TWA 2025 - Update', 
+                        date: '15 พ.ย. 2568', 
+                        startDate: '15/11/2025',
+                        endDate: '15/11/2025',
+                        startTime: '09:00',
+                        endTime: '17:00',
+                        subject: 'Meeting Invitation Subject',
+                        content: '<h1>Welcome to Event A</h1><p>This is the content for the meeting invitation.</p>',
+                        confirmSubject: 'Thank you for your online registration of : TWA 2025 - Update',
+                        toggles: { showSuccess: true, showWelcome: true, showDate: true, showVenue: true, showQR: true, showRef: true } 
+                    },
+                    { 
+                        id: 'event-h2', 
+                        title: 'Event B: New Product Launch', 
+                        date: '29 พ.ค. 2568', 
+                        startDate: '29/05/2025',
+                        endDate: '29/05/2025',
+                        startTime: '10:30',
+                        endTime: '12:00',
+                        subject: 'New Product Launch Subject',
+                        content: '<h1>Product Launch!</h1><p>Check out our amazing new product features.</p>',
+                        confirmSubject: 'Thank you for your online registration of : Event B: New Product Launch',
+                        toggles: { showSuccess: true, showWelcome: true, showDate: true, showVenue: false, showQR: false, showRef: true }
+                    }
+                ];
+                allEvents = hardcodedEvents; 
+                // บันทึก Hardcoded Events กลับไปยัง localStorage
+                localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(allEvents));
+            }
+            
+            // กรองและสร้าง HTML
+            allEvents.forEach(eventData => {
+                if (!deletedEventIds.includes(eventData.id)) {
+                    eventListContainer.innerHTML += createEventItemHTML(eventData);
+                }
+            });
+        }
+        
+        // 6. ฟังก์ชันทำสำเนา (Duplicate) Event
+        function duplicateEvent(eventId) {
+            const events = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
+            const originalEvent = events.find(event => event.id === eventId);
+
+            if (originalEvent) {
+                const now = new Date();
+                
+                // ⭐️ แก้ไขการบันทึกวันที่: สร้างสตริงในรูปแบบ DD/MM/YYYY โดยตรง (ค.ศ. ก่อน) 
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+                const year = now.getFullYear(); 
+                const dateStr = `${day}/${month}/${year}`; 
+                
+                // สร้าง ID ใหม่
+                const newId = 'event-' + Date.now();
+
+                const newEvent = {
+                    ...originalEvent, // คัดลอกข้อมูลทั้งหมด
+                    id: newId, 
+                    title: `[COPY] ${originalEvent.title}`, // เพิ่ม [COPY] ที่ชื่อ
+                    date: dateStr, // ตั้งวันที่สร้างเป็นวันปัจจุบันในรูปแบบ DD/MM/YYYY
+                    confirmSubject: `Thank you for your online registration of : [COPY] ${originalEvent.title || '[Event Title]'}`,
+                    // ล้าง startDate/endDate เพื่อให้ใช้ date แทน หรือตั้งเป็น dateStr ด้วยก็ได้
+                    // ใช้ dateStr ทั้งสำหรับ date และ startDate เพื่อให้การแสดงผลที่ dashboard ถูกต้อง
+                    date: dateStr, 
+                    startDate: dateStr,
+                    endDate: dateStr,
+                };
+
+                // เพิ่ม Event ใหม่ไปที่ด้านบนสุดของรายการ
+                events.unshift(newEvent);
+                localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(events));
+
+                alert(`✅ ทำสำเนา EDM สำเร็จ!\n\nชื่อ: ${newEvent.title}`);
+                // โหลดรายการใหม่บนหน้าจอ
+                loadAndRenderEvents(); 
+            } else {
+                alert('ไม่พบ Event ที่ต้องการทำสำเนา');
+            }
+        }
+
+        // 7. ฟังก์ชันยืนยันการลบ
+        function deleteEventConfirmation(eventId) {
+            const eventItem = document.getElementById(eventId);
+            // ⭐️ แก้ไข: ตรวจสอบว่า eventItem มีอยู่จริงก่อนเข้าถึง textContent
+            const eventTitle = eventItem ? eventItem.querySelector('.event-title').textContent : 'รายการนี้';
+
+            const isConfirmed = confirm(`คุณต้องการลบ "${eventTitle}" ออกจากรายการใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`);
+            
+            if (isConfirmed) {
+                deleteEvent(eventId);
+                saveDeletedEvent(eventId); 
+            }
+        }
+
+        // 8. ฟังก์ชันลบรายการออกจากหน้าจอ (DOM)
+        function deleteEvent(eventId) {
+            const eventItem = document.getElementById(eventId);
+            
+            if (eventItem) {
+                eventItem.style.opacity = 0;
+                eventItem.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    eventItem.remove();
+                    console.log(`รายการกิจกรรม ${eventId} ถูกลบแล้ว`);
+                }, 300);
+            }
+        }
+        
+        // 9. ฟังก์ชันนำทางไปหน้าแก้ไข 
+        function editEvent(eventId) {
+            window.location.href = `form.html?id=${eventId}`;
+        }
+        
+        // 10. ผูกฟังก์ชันเข้ากับ DOM Events
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAndRenderEvents(); 
+        });
+    </script>
+</body>
+</html>
