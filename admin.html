@@ -267,7 +267,7 @@
         function initializeAdminUser() {
             const defaultAdmin = {
                 username: 'admin',
-                password: 'adminpass',
+                password: '!7BmH0b43@g8H3Jw', // 🛠️ แก้ไข: รหัสผ่านตรงกับ index.html แล้ว
                 role: 'admin'
             };
             
@@ -279,7 +279,7 @@
                 users = users.filter(user => user.username !== defaultAdmin.username);
                 users.unshift(defaultAdmin); 
                 saveUsers(users);
-                console.log("Admin user initialized.");
+                console.log("Admin user initialized with new password.");
             }
         }
         
@@ -292,7 +292,7 @@
         const username = sessionStorage.getItem('username');
 
         if (!isLoggedIn || userRole !== 'admin') {
-            window.location.href = 'login.html';
+            window.location.href = 'index.html'; // 🛠️ แก้ไข: เปลี่ยนจาก 'login.html' เป็น 'index.html'
         } else {
             document.getElementById('welcome-message').textContent = `ยินดีต้อนรับ, ${username}`;
         }
