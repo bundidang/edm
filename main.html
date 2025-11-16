@@ -26,9 +26,9 @@
         }
 
         body {
-            font-family: 'Prompt', sans-serif; 
-            margin: 0;
+            font-family: 'Prompt', sans-serif;
             background-color: var(--background-color);
+            margin: 0;
             line-height: 1.6;
         }
 
@@ -39,6 +39,9 @@
             font-size: 26px;
             font-weight: 700;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .logo .lite-text {
@@ -46,380 +49,254 @@
             font-weight: 700; 
             opacity: 1; 
         }
-        
+
         .main-container {
-            display: flex;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
         }
-
-        .sidebar {
-            width: 180px;
-            padding-right: 30px;
-            text-align: center; 
-        }
-
-        .create-event-link {
-            text-decoration: none;
-            display: block;
-        }
-
-        .create-event-button {
-            background-color: white;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            width: 100%; 
-            height: 100px; 
+        
+        .dashboard-header {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 36px; 
-            color: var(--primary-color);
-            cursor: pointer;
-            margin-bottom: 8px; 
-            transition: all 0.2s ease-in-out;
-            box-shadow: var(--shadow-light);
-        }
-
-        .create-event-button:hover {
-            background-color: var(--primary-light);
-            border-color: var(--primary-color);
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-        }
-
-        .create-event-text {
-            color: var(--sub-text-color); 
-            font-size: 14px; 
-            font-weight: 400; 
-        }
-
-        .content {
-            flex-grow: 1;
-        }
-
-        .event-list-header {
-            display: flex;
-            justify-content: flex-start; 
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
-            gap: 0; 
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
         }
-        
-        .event-list-header h2 {
-            font-size: 22px;
+
+        .dashboard-header h2 {
+            font-size: 28px;
             color: var(--text-color);
             margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn-new-event {
+            background-color: #28a745; 
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
             font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-new-event:hover {
+            background-color: #1e7e34;
         }
         
         .event-list {
-            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
 
-        .event-item {
-            display: flex;
-            align-items: center; 
+        .event-card {
             background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
             padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
+            border-radius: 10px;
             box-shadow: var(--shadow-light);
-            min-height: 60px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px; 
+            border-left: 5px solid var(--primary-color);
         }
 
-        .event-item:hover {
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        .event-card:hover {
+            box-shadow: var(--shadow-hover);
             transform: translateY(-3px);
         }
-        
-        .event-main-info {
+
+        .event-info {
             flex-grow: 1;
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: flex-start; 
-            text-align: left; 
-            height: auto; 
-            padding-left: 10px; 
         }
-        
+
         .event-title {
-            font-weight: 600;
-            font-size: 18px;
-            color: var(--text-color);
-            margin-bottom: 0; 
-            line-height: 1.3;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .event-meta-small, .event-date-right {
-            display: none; 
-        }
-
-        .event-settings {
-            display: flex;
-            flex-direction: column; 
-            align-items: flex-end; 
-            gap: 5px; 
-            margin-left: 15px;
-            align-self: center; 
-            min-width: 120px; 
-            text-align: right; 
-        }
-
-        .icon-group {
-            display: flex;
-            gap: 2px;
-        }
-        
-        .settings-date {
+        .event-details {
             font-size: 14px;
             color: var(--sub-text-color);
-            white-space: nowrap; 
+            margin-bottom: 10px;
         }
 
-        .btn-icon {
-            background-color: transparent;
+        .event-details p {
+            margin: 4px 0;
+        }
+        
+        .event-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            padding: 8px 15px;
             border: none;
-            font-size: 18px;
-            color: var(--sub-text-color); 
-            padding: 8px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: color 0.2s, background-color 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .btn-icon:hover {
-            background-color: #f0f0f0;
+        .btn-edit {
+            background-color: #17a2b8;
+            color: white;
         }
-        
-        .btn-icon:hover .fa-edit {
-            color: #007bff; 
+
+        .btn-edit:hover {
+            background-color: #138496;
         }
-        
-        .btn-icon:hover .fa-copy {
-            color: #28a745; 
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
         }
-        
-        .btn-icon:hover .fa-trash-alt {
-            color: #dc3545; 
+
+        .btn-delete:hover {
+            background-color: #c82333;
         }
+
+        .no-events {
+            grid-column: 1 / -1; 
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: var(--sub-text-color);
+            background-color: white;
+            border-radius: 10px;
+        }
+
     </style>
 </head>
 <body>
+    <script>
+        // 💡 บังคับให้ต้องมีการล็อกอินก่อนเข้าถึงหน้านี้
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html'; // เปลี่ยนเส้นทางไปหน้า Login
+        }
+
+        function handleLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('username');
+                sessionStorage.removeItem('role');
+                window.location.href = 'index.html'; // กลับไปหน้า Login
+            }
+        }
+    </script>
+    
     <header class="header">
         <div class="logo">Email <span class="lite-text">Console</span></div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+             <div id="welcome-user" style="color: white; font-size: 16px; margin-right: 15px; font-weight: 500;"></div>
+            <button class="btn-new-event" onclick="window.location.href='form.html';">
+                <i class="fas fa-plus-circle"></i> Add New Event
+            </button>
+            <button type="button" onclick="handleLogout()" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background-color: #dc3545; color: white; font-weight: 600;">
+                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Logout
+            </button>
+        </div>
     </header>
 
     <div class="main-container">
-        <div class="sidebar">
-            <a href="form.html" class="create-event-link">
-                <div class="create-event-button">
-                    <i class="fas fa-plus"></i>
-                </div>
-            </a>
-            <p class="create-event-text">Create Event</p>
+        <div class="dashboard-header">
+            <h2><i class="fas fa-tachometer-alt" style="margin-right: 10px; color: var(--primary-color);"></i> Event Management Dashboard</h2>
         </div>
 
-        <div class="content">
-            <div class="event-list-header">
-                <h2>Event List</h2>
-                </div>
-            
-            <div class="event-list" id="event-list-container">
-                </div>
-        </div>
+        <div id="event-list" class="event-list">
+            </div>
     </div>
 
     <script>
-        const STORAGE_KEY_DELETED = 'deletedEvents';
-        const STORAGE_KEY_EVENTS = 'events'; 
-
-        // 1. โหลดสถานะรายการที่ถูกลบ
-        function getDeletedEventIds() {
-            const deletedEventsString = localStorage.getItem(STORAGE_KEY_DELETED);
-            return deletedEventsString ? JSON.parse(deletedEventsString) : [];
-        }
-
-        // 2. บันทึก ID ของรายการที่ถูกลบลงใน localStorage
-        function saveDeletedEvent(eventId) {
-            const deletedEventIds = getDeletedEventIds();
+        // 1. ฟังก์ชันโหลดและแสดงผลกิจกรรม
+        function loadAndRenderEvents() {
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const eventListContainer = document.getElementById('event-list');
             
-            if (!deletedEventIds.includes(eventId)) {
-                deletedEventIds.push(eventId);
-            }
-            
-            localStorage.setItem(STORAGE_KEY_DELETED, JSON.stringify(deletedEventIds));
-            console.log(`บันทึกสถานะการลบ: ${eventId}`);
-        }
-        
-        // 3. ปรับปรุง: จัดรูปแบบวันที่ให้เป็น "วัน เดือนย่ออังกฤษ ปี ค.ศ." (รองรับรูปแบบ DD/MM/YYYY และภาษาไทย)
-        function formatDateToEnglish(dateString) {
-            if (!dateString) return 'N/A';
-            
-            let dateToConvert = dateString.trim();
+            eventListContainer.innerHTML = ''; // Clear existing content
 
-            const thaiMonthMap = {
-                'ม.ค.': 'Jan', 'ก.พ.': 'Feb', 'มี.ค.': 'Mar', 'เม.ย.': 'Apr',
-                'พ.ค.': 'May', 'มิ.ย.': 'Jun', 'ก.ค.': 'Jul', 'ส.ค.': 'Aug',
-                'ก.ย.': 'Sep', 'ต.ค.': 'Oct', 'พ.ย.': 'Nov', 'ธ.ค.': 'Dec'
-            };
-
-            // 1. ลองจับคู่รูปแบบ DD/MM/YYYY (ที่มาจาก form.html หรือการ Duplicate ใหม่)
-            const slashMatch = dateToConvert.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-            if (slashMatch) {
-                // DD/MM/YYYY
-                const day = slashMatch[1];
-                const monthIndex = parseInt(slashMatch[2]) - 1;
-                const yearAD = slashMatch[3];
-                const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                // ⭐️ แก้ไข: ตรวจสอบให้แน่ใจว่า monthIndex อยู่ในช่วง 0-11
-                if(monthIndex >= 0 && monthIndex <= 11) {
-                   return `${day} ${monthNamesEn[monthIndex]} ${yearAD}`;
-                } else {
-                   return `${day}/${slashMatch[2]}/${yearAD}`; // คืนค่าเป็น DD/MM/YYYY หากเดือนผิดพลาด
-                }
+            if (events.length === 0) {
+                eventListContainer.innerHTML = `
+                    <div class="no-events">
+                        <i class="far fa-frown" style="font-size: 30px; margin-bottom: 15px; display: block;"></i>
+                        <p>No events found. Click "Add New Event" to start a campaign.</p>
+                    </div>
+                `;
+                return;
             }
 
-            // 2. ลองจับคู่รูปแบบภาษาไทย (เช่น "15 พ.ย. 2568")
-            const thaiMatch = dateToConvert.match(/(\d{1,2})\s*([ก-ฮ]{2,3}\.)\s*(\d{4})/);
+            events.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.id = event.id;
+                
+                const createDate = new Date(event.createDate).toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
 
-            if (thaiMatch) {
-                const day = thaiMatch[1];
-                // ลบจุดออกก่อนค้นหา
-                const monthEn = thaiMonthMap[thaiMatch[2].replace(/\./g, '')]; 
-                const year = thaiMatch[3];
-                const yearAD = parseInt(year) > 2500 ? parseInt(year) - 543 : parseInt(year); // แปลง พ.ศ. เป็น ค.ศ.
-                return `${day} ${monthEn} ${yearAD}`;
-            }
-
-            // 3. ถ้าไม่มีรูปแบบที่เข้ากัน ให้คืนค่าเดิม
-            return dateString; 
-        }
-
-        // 4. สร้าง HTML สำหรับ Event Item
-        function createEventItemHTML(eventData) {
-            // ดึงวันที่เริ่มต้น (startDate) มาใช้แสดงผล หากไม่มีให้ใช้ date (วันที่สร้าง)
-            const rawDate = eventData.startDate || eventData.date || 'N/A';
-            const formattedDate = formatDateToEnglish(rawDate); 
-            
-            return `
-                <div class="event-item" id="${eventData.id}">
-                    <div class="event-main-info">
-                        <div class="event-title">${eventData.title}</div>
-                        </div>
-                    
-                    <div class="event-settings">
-                        <div class="icon-group">
-                            <button class="btn btn-icon" title="แก้ไข EDM" onclick="editEvent('${eventData.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-icon" title="ทำสำเนา EDM" onclick="duplicateEvent('${eventData.id}')"><i class="fas fa-copy"></i></button>
-                            <button class="btn btn-icon" title="ลบ EDM" onclick="deleteEventConfirmation('${eventData.id}')"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <div class="settings-date">
-                            ${formattedDate}
+                card.innerHTML = `
+                    <div class="event-info">
+                        <span class="event-title" title="${event.title}">${event.title}</span>
+                        <div class="event-details">
+                            <p><strong><i class="fas fa-calendar-alt"></i> Date:</strong> ${event.date_full || event.startDate}</p>
+                            <p><strong><i class="fas fa-clock"></i> Time:</strong> ${event.startTime || 'N/A'} - ${event.endTime || 'N/A'}</p>
+                            <p><strong><i class="fas fa-map-marker-alt"></i> Venue:</strong> ${event.venue || 'N/A'}</p>
+                            <p style="margin-top: 10px; font-size: 12px; color: #a0a0a0;">Created: ${createDate}</p>
                         </div>
                     </div>
-                </div>
-            `;
-        }
-
-        // 5. โหลดและแสดงรายการ Events ทั้งหมด
-        function loadAndRenderEvents() {
-            const eventListContainer = document.getElementById('event-list-container');
-            eventListContainer.innerHTML = ''; 
-            
-            let allEvents = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
-            const deletedEventIds = getDeletedEventIds();
-            
-            // ✳️ เพิ่มรายการ Hardcoded หากไม่มีข้อมูลใน LocalStorage (เพื่อให้มีข้อมูลเริ่มต้น)
-            if (allEvents.length === 0) {
-                const hardcodedEvents = [
-                    { 
-                        id: 'event-h1', 
-                        title: 'TWA 2025 - Update', 
-                        date: '15 พ.ย. 2568', 
-                        startDate: '15/11/2025',
-                        endDate: '15/11/2025',
-                        startTime: '09:00',
-                        endTime: '17:00',
-                        subject: 'Meeting Invitation Subject',
-                        content: '<h1>Welcome to Event A</h1><p>This is the content for the meeting invitation.</p>',
-                        confirmSubject: 'Thank you for your online registration of : TWA 2025 - Update',
-                        toggles: { showSuccess: true, showWelcome: true, showDate: true, showVenue: true, showQR: true, showRef: true } 
-                    },
-                    { 
-                        id: 'event-h2', 
-                        title: 'Event B: New Product Launch', 
-                        date: '29 พ.ค. 2568', 
-                        startDate: '29/05/2025',
-                        endDate: '29/05/2025',
-                        startTime: '10:30',
-                        endTime: '12:00',
-                        subject: 'New Product Launch Subject',
-                        content: '<h1>Product Launch!</h1><p>Check out our amazing new product features.</p>',
-                        confirmSubject: 'Thank you for your online registration of : Event B: New Product Launch',
-                        toggles: { showSuccess: true, showWelcome: true, showDate: true, showVenue: false, showQR: false, showRef: true }
-                    }
-                ];
-                allEvents = hardcodedEvents; 
-                // บันทึก Hardcoded Events กลับไปยัง localStorage
-                localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(allEvents));
-            }
-            
-            // กรองและสร้าง HTML
-            allEvents.forEach(eventData => {
-                if (!deletedEventIds.includes(eventData.id)) {
-                    eventListContainer.innerHTML += createEventItemHTML(eventData);
-                }
+                    <div class="event-footer">
+                        <button class="btn-action btn-edit" onclick="editEvent('${event.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteEventConfirmation('${event.id}')">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                `;
+                eventListContainer.appendChild(card);
             });
         }
         
-        // 6. ฟังก์ชันทำสำเนา (Duplicate) Event
-        function duplicateEvent(eventId) {
-            const events = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
-            const originalEvent = events.find(event => event.id === eventId);
-
-            if (originalEvent) {
-                const now = new Date();
-                
-                // ⭐️ แก้ไขการบันทึกวันที่: สร้างสตริงในรูปแบบ DD/MM/YYYY โดยตรง (ค.ศ. ก่อน) 
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-                const year = now.getFullYear(); 
-                const dateStr = `${day}/${month}/${year}`; 
-                
-                // สร้าง ID ใหม่
-                const newId = 'event-' + Date.now();
-
-                const newEvent = {
-                    ...originalEvent, // คัดลอกข้อมูลทั้งหมด
-                    id: newId, 
-                    title: `[COPY] ${originalEvent.title}`, // เพิ่ม [COPY] ที่ชื่อ
-                    date: dateStr, // ตั้งวันที่สร้างเป็นวันปัจจุบันในรูปแบบ DD/MM/YYYY
-                    confirmSubject: `Thank you for your online registration of : [COPY] ${originalEvent.title || '[Event Title]'}`,
-                    // ล้าง startDate/endDate เพื่อให้ใช้ date แทน หรือตั้งเป็น dateStr ด้วยก็ได้
-                    // ใช้ dateStr ทั้งสำหรับ date และ startDate เพื่อให้การแสดงผลที่ dashboard ถูกต้อง
-                    date: dateStr, 
-                    startDate: dateStr,
-                    endDate: dateStr,
-                };
-
-                // เพิ่ม Event ใหม่ไปที่ด้านบนสุดของรายการ
-                events.unshift(newEvent);
-                localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(events));
-
-                alert(`✅ ทำสำเนา EDM สำเร็จ!\n\nชื่อ: ${newEvent.title}`);
-                // โหลดรายการใหม่บนหน้าจอ
-                loadAndRenderEvents(); 
-            } else {
-                alert('ไม่พบ Event ที่ต้องการทำสำเนา');
-            }
+        // 2. ฟังก์ชันบันทึกรายการกิจกรรมที่ถูกลบ (สำหรับกรณีที่ต้องการให้แสดงผลชั่วคราว)
+        function saveDeletedEvent(eventId) {
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+            
+            // กรองรายการกิจกรรมที่ต้องการลบออก
+            events = events.filter(event => event.id !== eventId);
+            
+            // บันทึกกลับไปใน Local Storage
+            localStorage.setItem('events', JSON.stringify(events));
+            
+            // โหลดและแสดงผลใหม่หลังจากลบ
+            loadAndRenderEvents();
         }
 
-        // 7. ฟังก์ชันยืนยันการลบ
+        // 3. ฟังก์ชันยืนยันการลบ
         function deleteEventConfirmation(eventId) {
             const eventItem = document.getElementById(eventId);
             // ⭐️ แก้ไข: ตรวจสอบว่า eventItem มีอยู่จริงก่อนเข้าถึง textContent
@@ -433,7 +310,7 @@
             }
         }
 
-        // 8. ฟังก์ชันลบรายการออกจากหน้าจอ (DOM)
+        // 4. ฟังก์ชันลบรายการออกจากหน้าจอ (DOM)
         function deleteEvent(eventId) {
             const eventItem = document.getElementById(eventId);
             
@@ -448,15 +325,18 @@
             }
         }
         
-        // 9. ฟังก์ชันนำทางไปหน้าแก้ไข 
+        // 5. ฟังก์ชันนำทางไปหน้าแก้ไข 
         function editEvent(eventId) {
             window.location.href = `form.html?id=${eventId}`;
         }
         
-        // 10. ผูกฟังก์ชันเข้ากับ DOM Events
+        // 6. ผูกฟังก์ชันเข้ากับ DOM Events
         document.addEventListener('DOMContentLoaded', () => {
-            loadAndRenderEvents(); 
+             const username = sessionStorage.getItem('username') || 'User';
+             document.getElementById('welcome-user').textContent = `Welcome, ${username}!`;
+             loadAndRenderEvents(); 
         });
+
     </script>
 </body>
 </html>
