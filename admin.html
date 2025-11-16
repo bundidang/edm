@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - User & SMTP Management</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #ff8c00; 
+            --background-color: #f7f9fc;
+            --text-color: #333;
+            --border-color: #e0e6ed;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 40px;
+            font-size: 26px;
+            font-weight: 700;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo .lite-text {
+            font-size: 26px; 
+            font-weight: 700; 
+            opacity: 1; 
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .tab-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-nav li a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-nav li a:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-nav li a.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .tab-content .tab-pane {
+            display: none;
+        }
+        .tab-content .tab-pane.active {
+            display: block;
+        }
+        
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .input-text {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* --- User Management Styles --- */
+        #user-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #user-list-table th, #user-list-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        #user-list-table th {
+            background-color: #f0f4f7;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        #user-list-table td:last-child {
+            text-align: center;
+        }
+        
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .btn-add-user {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+        
+        .btn-save-smtp {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <script>
+        // 💡 บังคับให้ต้องมีการล็อกอินและเป็น Admin ก่อนเข้าถึงหน้านี้
+        const userRole = sessionStorage.getItem('role');
+        if (sessionStorage.getItem('isLoggedIn') !== 'true' || userRole !== 'admin') {
+            alert('Access Denied: You must be logged in as an Admin.');
+            window.location.href = 'index.html'; // เปลี่ยนเส้นทางไปหน้า Login
+        }
+
+        function handleLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('username');
+                sessionStorage.removeItem('role');
+                window.location.href = 'index.html'; // กลับไปหน้า Login
+            }
+        }
+    </script>
+    
+    <header class="header">
+        <div class="logo">Admin <span class="lite-text">Panel</span></div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div id="welcome-user" style="color: white; font-size: 16px; margin-right: 15px; font-weight: 500;">Welcome, Admin!</div>
+            <button class="btn-action" style="background-color: #17a2b8; color: white;" onclick="window.location.href='main.html';">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button type="button" onclick="handleLogout()" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background-color: #dc3545; color: white; font-weight: 600;">
+                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <ul class="tab-nav">
+            <li><a href="#" class="active" onclick="openTab(event, 'user-management')"><i class="fas fa-users"></i> User Management</a></li>
+            <li><a href="#" onclick="openTab(event, 'smtp-settings')"><i class="fas fa-cogs"></i> SMTP Settings (Gmail)</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="user-management" class="tab-pane active">
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-user-plus"></i> Add New User</div>
+                    <form id="add-user-form">
+                        <div class="form-group">
+                            <label for="new-username">Username</label>
+                            <input type="text" id="new-username" class="input-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">Password</label>
+                            <input type="password" id="new-password" class="input-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-role">Role</label>
+                            <select id="new-role" class="input-text">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-action btn-add-user"><i class="fas fa-user-plus"></i> Add User</button>
+                        <div id="user-add-message" class="message"></div>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-list"></i> Registered Users</div>
+                    <table id="user-list-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-tbody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="smtp-settings" class="tab-pane">
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-envelope"></i> Gmail SMTP Configuration</div>
+                    <p style="font-size: 14px; color: #dc3545; font-weight: 600;">
+                        <i class="fas fa-exclamation-triangle"></i> Note: This application requires a **Google App Password** (16 characters) for security. You must enable 2-Step Verification on your Gmail account first.
+                    </p>
+                    <form id="smtp-form">
+                        <div class="form-group">
+                            <label for="smtp-server">SMTP Server (Fixed for Gmail)</label>
+                            <input type="text" id="smtp-server" class="input-text" value="smtp.gmail.com" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="smtp-port">Port (Fixed for Gmail)</label>
+                            <input type="number" id="smtp-port" class="input-text" value="587" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="sender-email">Sender Email (Your Gmail Address)</label>
+                            <input type="email" id="sender-email" class="input-text" required placeholder="your.email@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="app-password">App Password (16 characters)</label>
+                            <input type="password" id="app-password" class="input-text" placeholder="e.g., abcd efgh ijkl mnop" required minlength="16" maxlength="16">
+                        </div>
+                        <button type="submit" class="btn-action btn-save-smtp"><i class="fas fa-save"></i> Save Gmail Settings</button>
+                        <div id="smtp-message" class="message"></div>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // ===================== TAB CONTROL =====================
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tab-pane");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            const tablinks = document.getElementsByClassName("tab-nav")[0].getElementsByTagName("a");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            if (tabName === 'user-management') {
+                renderUserList();
+            }
+            if (tabName === 'smtp-settings') {
+                loadSmtpConfig(); 
+            }
+        }
+        
+        // ===================== USER MANAGEMENT =====================
+        
+        // 1. โหลดและแสดงรายการผู้ใช้
+        function renderUserList() {
+            let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            const tbody = document.getElementById('user-list-tbody');
+            tbody.innerHTML = '';
+            
+            // 💡 กรองบัญชี Admin หลักออกไปจากการจัดการปกติ (ป้องกันการลบตัวเอง)
+            const filteredUsers = users.filter(user => user.username !== 'admin'); 
+
+            filteredUsers.forEach(user => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = user.username;
+                row.insertCell().textContent = user.role;
+                
+                const actionCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-action btn-delete';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => deleteUser(user.username);
+                
+                actionCell.appendChild(deleteBtn);
+            });
+        }
+        
+        // 2. ลบผู้ใช้
+        function deleteUser(username) {
+            if (username === 'admin') {
+                alert('ไม่สามารถลบบัญชี Admin หลักได้');
+                return;
+            }
+            if (confirm(`คุณต้องการลบผู้ใช้ ${username} ใช่หรือไม่?`)) {
+                let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+                users = users.filter(user => user.username !== username);
+                localStorage.setItem('registeredUsers', JSON.stringify(users));
+                renderUserList();
+                alert(`ผู้ใช้ ${username} ถูกลบแล้ว`);
+            }
+        }
+        
+        // 3. เพิ่มผู้ใช้
+        document.getElementById('add-user-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+            const messageElement = document.getElementById('user-add-message');
+            
+            messageElement.style.display = 'none';
+
+            if (!username || !password) {
+                messageElement.textContent = 'กรุณากรอก Username และ Password';
+                messageElement.className = 'message error';
+                messageElement.style.display = 'block';
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            if (users.some(user => user.username === username)) {
+                messageElement.textContent = `Username '${username}' มีอยู่แล้ว`;
+                messageElement.className = 'message error';
+                messageElement.style.display = 'block';
+                return;
+            }
+            
+            const newUser = { username, password, role };
+            users.push(newUser);
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+            
+            this.reset();
+            renderUserList();
+            
+            messageElement.textContent = `✅ เพิ่มผู้ใช้ '${username}' (Role: ${role}) สำเร็จ!`;
+            messageElement.className = 'message success';
+            messageElement.style.display = 'block';
+        });
+
+        // ===================== SMTP CONFIGURATION =====================
+        
+        // 1. โหลดการตั้งค่า SMTP จาก Local Storage
+        function loadSmtpConfig() {
+            const config = JSON.parse(localStorage.getItem('smtpConfig')) || {};
+            // 💡 เราสนใจเฉพาะ email และ appPassword สำหรับ Gmail
+            document.getElementById('sender-email').value = config.email || '';
+            // 💡 App Password จะไม่ถูกโหลดกลับมาเพื่อความปลอดภัย
+            document.getElementById('app-password').value = ''; 
+        }
+
+        // 2. บันทึกการตั้งค่า SMTP ลงใน Local Storage
+        function saveSmtpConfig(config) {
+             // 💡 บันทึกเฉพาะ email และ appPassword ลงใน Local Storage
+             localStorage.setItem('smtpConfig', JSON.stringify({
+                email: config.email,
+                appPassword: config.appPassword 
+             }));
+        }
+
+        // 3. จัดการฟอร์มบันทึก
+        document.getElementById('smtp-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // const server = document.getElementById('smtp-server').value;
+            // const port = document.getElementById('smtp-port').value;
+            const email = document.getElementById('sender-email').value.trim();
+            const appPassword = document.getElementById('app-password').value.replace(/\s/g, ''); // ลบช่องว่าง
+            const messageElement = document.getElementById('smtp-message');
+
+            messageElement.style.display = 'none';
+
+            // ตรวจสอบความยาว App Password (16 ตัวอักษร)
+            if (appPassword.length !== 16) { 
+                 messageElement.textContent = '❌ App Password ต้องมี 16 ตัวอักษรพอดี (ตรวจสอบในบัญชี Gmail ของคุณ)';
+                messageElement.className = 'message error';
+                messageElement.style.display = 'block';
+                return;
+            }
+            
+            const smtpConfig = {
+                // server: server, 
+                // port: port,     
+                email: email,   
+                appPassword: appPassword 
+            };
+
+            saveSmtpConfig(smtpConfig);
+
+            messageElement.textContent = `✅ บันทึกการตั้งค่า Gmail SMTP สำเร็จ! (${email})`;
+            messageElement.className = 'message success';
+            messageElement.style.display = 'block';
+
+            // ล้างช่องรหัสผ่านหลังจากบันทึก
+            document.getElementById('app-password').value = ''; 
+        });
+
+
+        // โหลดรายการผู้ใช้และ config เมื่อหน้าเว็บโหลดครั้งแรก
+        document.addEventListener('DOMContentLoaded', () => {
+             // 💡 เปิดแท็บ User Management เป็นค่าเริ่มต้น และโหลดรายการผู้ใช้
+             // ไม่จำเป็นต้องเรียก openTab เพราะใน HTML กำหนด User Management เป็น active และเราจะเรียก renderUserList
+             renderUserList(); 
+             // 💡 โหลด config SMTP ไว้สำหรับแท็บที่สองด้วย
+             loadSmtpConfig();
+        });
+    </script>
+</body>
+</html>
