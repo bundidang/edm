@@ -404,11 +404,31 @@
     </style>
 </head>
 <body>
+    <script>
+        // 💡 บังคับให้ต้องมีการล็อกอินก่อนเข้าถึงหน้านี้
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html'; // เปลี่ยนเส้นทางไปหน้า Login
+        }
+
+        function handleLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('username');
+                sessionStorage.removeItem('role');
+                window.location.href = 'index.html'; // กลับไปหน้า Login
+            }
+        }
+    </script>
     <header class="header">
         <div class="logo" onclick="confirmBeforeExit('main.html')" style="cursor: pointer;">Email <span class="lite-text">Console</span></div>
-        <button type="button" onclick="confirmBeforeExit('main.html')" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background-color: #e95900; color: white;">
-            <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Back to Dashboard
-        </button>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="confirmBeforeExit('main.html')" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background-color: #e95900; color: white;">
+                <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Back to Dashboard
+            </button>
+            <button type="button" onclick="handleLogout()" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background-color: #dc3545; color: white;">
+                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Logout
+            </button>
+        </div>
     </header>
 
     <div class="main-container">
@@ -619,9 +639,9 @@
     </div>
 
     <script>
-        // 💡💡💡 IMPORTANT: PUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE 💡💡💡
-        // URL นี้คือ URL ที่ได้จากการ Deploy Google Apps Script (GAS) เป็น Web App
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5sprk5PuWlc9D43RNx8AhD-9aOsbl3PQWcseARz5_zfHM6CDwNL8siPNA9mPiJ_qn0A/exec'; // e.g. https://script.google.com/macros/s/ABCDEFG/exec
+        // 💡💡💡 IMPORTANT: PUT YOUR BACKEND/APPS SCRIPT API URL HERE 💡💡💡
+        // URL นี้คือ API Endpoint ของ Backend ที่ทำหน้าที่ส่ง SMTP จริง
+        const BACKEND_API_URL = 'https://your-backend-or-gas-endpoint.com/send-email'; 
 
         let isDirty = false;
         let nameListData = []; 
@@ -639,8 +659,6 @@
             
             $("#start-date, #end-date, #start-time, #end-time").on('change input', updatePreview);
             $("#event-title, #event-venue, #confirm-subject").on('input', updatePreview); 
-            // 💡 Removed toggleEmailSending() from change handler as polling is now backend-only
-            // $("#toggle-auto-send").on('change', toggleEmailSending); 
         });
         
         function formatDisplayDate(dateStr) {
@@ -819,7 +837,6 @@
             document.getElementById('toggle-ref').checked = toggles.showRef ?? true;
             document.getElementById('toggle-fullname').checked = toggles.showFullName ?? false; 
             document.getElementById('toggle-auto-send').checked = toggles.autoSend ?? false;
-            // toggleEmailSending(); // 💡 Removed, as status is now static reminder
         }
         
         function getQueryParameter(name) {
@@ -883,8 +900,6 @@
                     
                     if (eventToEdit.toggles) {
                         setConfirmationToggles(eventToEdit.toggles);
-                    } else {
-                        // toggleEmailSending(); // 💡 Removed
                     }
 
                     const hiddenInput = document.createElement('input');
@@ -899,11 +914,11 @@
                 }
             } else {
                 updatePreview(); 
-                // toggleEmailSending(); // 💡 Removed
             }
             
-            // startEmailPolling(); // 💡 Removed polling logic (must be backend)
             loadNameListFromStorage();
+            toggleEmailSending();
+            document.getElementById('toggle-auto-send').addEventListener('change', toggleEmailSending);
         });
 
         document.getElementById('edm-form').addEventListener('submit', function(event) {
@@ -990,7 +1005,6 @@
         
         // ===================== NAME LIST: CSV / EXCEL =====================
 
-        // ใช้ร่วมทั้ง CSV และ Excel
         function processNameListData(rows) {
             nameListData = rows
                 .filter(item => item.Name || item['E-Mail'])
@@ -1305,46 +1319,63 @@
             }
         }
         
-        // ================== CORE EMAIL SENDING FUNCTION (TO GAS) ==================
+        // ================== CORE EMAIL SENDING FUNCTION (TO BACKEND) ==================
 
-        // 💡 ฟังก์ชันใหม่สำหรับส่งข้อมูลไปยัง Google Apps Script
-        async function sendEmailToGas(payload, type = 'Single') {
-            if (GOOGLE_APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE' || !GOOGLE_APPS_SCRIPT_URL.startsWith('http')) {
-                alert('❌ ERROR: กรุณาใส่ Web App URL ของ Google Apps Script ที่ถูกต้องในตัวแปร GOOGLE_APPS_SCRIPT_URL ก่อน');
-                console.error('GAS URL is not set.');
-                return { success: false, message: 'GAS URL is not set.' };
+        // 💡 ฟังก์ชันใหม่สำหรับส่งข้อมูลไปยัง Backend/Apps Script
+        async function sendEmailToBackend(payload, type = 'Single') {
+            
+            // 1. ดึงการตั้งค่า Gmail SMTP
+            const smtpConfig = JSON.parse(localStorage.getItem('smtpConfig'));
+
+            if (!smtpConfig || !smtpConfig.email || !smtpConfig.appPassword || smtpConfig.appPassword.length !== 16) {
+                alert('❌ ERROR: กรุณาตั้งค่า Gmail Sender Email และ App Password (16 ตัวอักษร) ให้ถูกต้องในหน้า Admin Panel ก่อนดำเนินการส่งอีเมล.');
+                console.error('SMTP configuration is missing or invalid.');
+                return { success: false, message: 'SMTP configuration missing or invalid.' };
             }
 
-            console.log(`Sending ${type} Email request to GAS...`, payload);
+            // 2. ผนวกข้อมูล SMTP เข้าไปใน Payload
+            const finalPayload = {
+                 ...payload,
+                 smtp: {
+                     senderEmail: smtpConfig.email,
+                     appPassword: smtpConfig.appPassword
+                 }
+            };
+
+            // 3. ส่งคำขอไปยัง Backend
+            console.log(`Sending ${type} Email request to Backend API...`, finalPayload);
             
             try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                // ⚠️ NOTE: การเรียก API นี้จะสำเร็จได้จริงเมื่อคุณตั้งค่า Backend Server (เช่น GAS/Node.js) และจัดการ CORS เรียบร้อยแล้ว
+                const response = await fetch(BACKEND_API_URL, {
                     method: 'POST',
                     mode: 'cors', 
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(finalPayload)
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // พยายามอ่านข้อความผิดพลาดจาก Backend
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}. Response: ${errorText}`);
                 }
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    console.log(`✅ ${type} Email Sent Success (via GAS):`, result.message);
+                    console.log(`✅ ${type} Email Sent Success (via Backend):`, result.message);
                 } else {
-                    console.error(`❌ ${type} Email Failed (via GAS):`, result.message);
+                    console.error(`❌ ${type} Email Failed (via Backend):`, result.message);
                 }
                 
                 return result;
 
             } catch (error) {
-                alert(`❌ ERROR: การเชื่อมต่อกับ Google Apps Script ล้มเหลว! (ตรวจสอบ Network, CORS, และ URL) - ${error.message}`);
-                console.error('GAS Connection/Fetch Error:', error);
-                return { success: false, message: 'Connection Error to GAS.' };
+                alert(`❌ ERROR: การเชื่อมต่อกับ Backend/Apps Script ล้มเหลว! (ตรวจสอบ Network, CORS, และ URL) - ${error.message}`);
+                console.error('Backend Connection/Fetch Error:', error);
+                return { success: false, message: 'Connection Error to Backend.' };
             }
         }
 
@@ -1362,7 +1393,7 @@
                 return;
             }
             
-            const confirmSend = confirm(`คุณต้องการส่ง EDM Invitation ไปยังผู้รับ ${selectedRecipients.length} รายการหรือไม่?`);
+            const confirmSend = confirm(`คุณต้องการส่ง EDM Invitation ไปยังผู้รับ ${selectedRecipients.length} รายการหรือไม่? การส่งจะดำเนินการผ่าน Gmail ของคุณ`);
             
             if (!confirmSend) return;
 
@@ -1377,21 +1408,21 @@
             }
 
             const payload = {
-                action: 'sendBulkEDM', // 💡 กำหนด action ให้ Apps Script รู้ว่าทำอะไร
+                action: 'sendBulkEDM', 
                 recipients: selectedRecipients.map(item => ({ 
                     name: item.name, 
                     email: item.email, 
-                    ref_id: item.id // ใช้ ID เป็น reference
+                    ref_id: item.id
                 })),
                 subject: emailSubject,
-                htmlBodyTemplate: edmContent,
+                htmlBody: edmContent,
                 eventTitle: eventTitle
             };
             
-            alert(`📢 กำลังส่ง EDM Invitation ไปยังผู้รับ ${selectedRecipients.length} รายการ (ผ่าน Back-end Apps Script)`);
+            alert(`📢 กำลังส่ง EDM Invitation ไปยังผู้รับ ${selectedRecipients.length} รายการ (ผ่าน Backend/SMTP)`);
 
-            // 2. ส่ง Payload ไปยัง Apps Script
-            const result = await sendEmailToGas(payload, 'Bulk EDM');
+            // 2. ส่ง Payload ไปยัง Backend
+            const result = await sendEmailToBackend(payload, 'Bulk EDM');
             
             if (result.success) {
                 // 3. อัปเดตสถานะใน Name List (จำลอง)
@@ -1402,9 +1433,9 @@
                 renderNameList();
                 saveNameListToStorage();
 
-                alert(`✅ การส่งคำสั่ง EDM ไปยัง Apps Script สำเร็จแล้ว! โปรดตรวจสอบสถานะการส่งจริงใน Apps Script Log`);
+                alert(`✅ การส่งคำสั่ง EDM ไปยัง Backend สำเร็จแล้ว! โปรดตรวจสอบสถานะการส่งจริงจากอีเมลของคุณ`);
                 
-                // 4. จำลองการอัปเดต Delivery Status (ในระบบจริงต้องมี Webhook/Callback จาก GAS/Gmail)
+                // 4. จำลองการอัปเดต Delivery Status 
                 setTimeout(() => {
                     selectedRecipients.forEach(item => {
                         if (item.deliveryStatus === 'waiting') {
@@ -1426,8 +1457,7 @@
         }
         
         // ================== CONFIRM EMAIL SENDING (AUTO) ==================
-        // 💡 ฟังก์ชันนี้จะถูกเรียกโดยระบบภายนอก (เช่น จากหน้าลงทะเบียน) หรือ Apps Script Trigger 
-        // ในที่นี้คือการจำลองการส่งคำสั่งจากระบบลงทะเบียนใหม่
+        
         async function sendConfirmationEmail(data) {
             
             if (!getConfirmationToggles().autoSend) {
@@ -1452,32 +1482,28 @@
             }
             
             const payload = {
-                action: 'sendConfirmation', // 💡 กำหนด action ให้ Apps Script รู้ว่าทำอะไร
+                action: 'sendConfirmation', 
                 recipient: data.recipient,
                 subject: confirmSubject.replace('[Event Title]', eventTitle),
                 refId: data.refId,
                 eventTitle: eventTitle,
                 venue: eventVenue,
                 toggles: toggles
-                // ใน Apps Script ต้องสร้าง HTML Body โดยใช้ Toggles และข้อมูล Event
+                // Backend จะต้องสร้าง HTML Body จาก Toggles
             };
             
-            console.log(`Sending Confirmation Email request for ${data.recipient} (via Back-end Apps Script)`);
+            console.log(`Sending Confirmation Email request for ${data.recipient} (via Backend/SMTP)`);
 
-            // 2. ส่ง Payload ไปยัง Apps Script
-            const result = await sendEmailToGas(payload, 'Confirmation');
+            // 2. ส่ง Payload ไปยัง Backend
+            const result = await sendEmailToBackend(payload, 'Confirmation');
             
             if (result.success) {
-                console.log(`✅ Confirmation Email sent successfully (via GAS)`);
+                console.log(`✅ Confirmation Email sent successfully (via Backend)`);
             } else {
-                console.error(`❌ Confirmation Email failed (via GAS): ${result.message}`);
+                console.error(`❌ Confirmation Email failed (via Backend): ${result.message}`);
             }
         }
         
-        // 💡 ฟังก์ชันที่ถูกลบออกไปและควรจะทำบน Apps Script แทน:
-        // function toggleEmailSending() { ... } 
-        // function startEmailPolling() { ... }
-
         // 💡 แสดงข้อความเตือนเรื่อง Backend ในหน้า Confirmation Email
         function toggleEmailSending() {
             const isEnabled = document.getElementById('toggle-auto-send').checked;
@@ -1487,32 +1513,13 @@
 
             if (isEnabled) {
                  statusDiv.classList.add('status-on');
-                 statusDiv.innerHTML = `Auto-Send: **ACTIVE**. **(Backend Required)**. Apps Script must be set up to send this email.`;
+                 statusDiv.innerHTML = `Auto-Send: **ACTIVE**. **(Backend Required)**. Apps Script or Node.js must be running to handle this.`;
             } else {
                 statusDiv.classList.add('status-off');
                 statusDiv.innerHTML = `Auto-Send: **DISABLED**. Backend logic will ignore new registration events.`;
             }
         }
         
-        // 💡 เรียกใช้เพื่อให้สถานะแสดงผลถูกต้องเมื่อโหลดหน้า
-        document.addEventListener('DOMContentLoaded', () => {
-             // ... โค้ดที่มีอยู่เดิม ...
-             
-             // 💡 Call the function that only updates the status display, not the polling logic
-             toggleEmailSending();
-             document.getElementById('toggle-auto-send').addEventListener('change', toggleEmailSending);
-
-        });
-        
-        // 💡 Example for testing the confirmation email logic (simulating a new registration)
-        // setTimeout(() => {
-        //      if (getConfirmationToggles().autoSend) {
-        //          sendConfirmationEmail({ recipient: 'test-new-reg@example.com', refId: 'R123456' });
-        //      }
-        // }, 5000);
-
     </script>
 </body>
 </html>
-
-
