@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Console Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #ff8c00; 
+            --background-color: #f7f9fc;
+            --text-color: #333;
+            --border-color: #e0e6ed;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .input-field-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field-container input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            padding-right: 40px; 
+        }
+
+        .input-field-container:not(.password-field) input {
+             padding-right: 12px; 
+        }
+
+        .input-field-container input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .input-field-container .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .input-field-container .toggle-password:hover {
+            color: var(--primary-color);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .login-button:hover {
+            background-color: #e67e00; 
+        }
+
+        #error-message {
+            color: #dc3545;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Email Console Login</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <div class="input-field-container">
+                    <input type="text" id="username" name="username" required> 
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="input-field-container password-field">
+                    <input type="password" id="password" name="password" required>
+                    <i class="fas fa-eye toggle-password" id="toggle-password"></i>
+                </div>
+            </div>
+            <button type="submit" class="login-button">Login</button>
+            <p id="error-message">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
+        </form>
+    </div>
+
+    <script>
+        // ------------------ Toggle Password Functionality ------------------
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // ------------------ Login Logic (ปรับปรุงเพื่อความมั่นคง) ------------------
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            
+            errorMessage.style.display = 'none';
+
+            // **บัญชี Admin หลักที่สร้างไว้ตายตัว (Hardcoded Admin) - 🛠️ รหัสผ่านใหม่**
+            const defaultAdmin = {
+                username: 'admin',
+                password: '!7BmH0b43@g8H3Jw', 
+                role: 'admin'
+            };
+            
+            let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            
+            // 🛠️ ลบรายการที่มี username เป็น 'admin' ที่ไม่ใช่รหัสผ่านใหม่ออกไปก่อน (เพื่อจัดการกับการอัปเดตรหัสผ่าน)
+            const usersWithoutOldAdmin = users.filter(user => user.username !== defaultAdmin.username);
+
+            // เพิ่มบัญชี admin หลักรหัสผ่านใหม่เข้าไป
+            if (!users.some(user => user.username === defaultAdmin.username && user.password === defaultAdmin.password)) {
+                 // ใช้ users ที่ถูกกรองแล้ว (ไม่มี 'admin' เดิม) และเพิ่ม admin ใหม่เข้าไป
+                users = usersWithoutOldAdmin;
+                users.unshift(defaultAdmin); 
+                localStorage.setItem('registeredUsers', JSON.stringify(users));
+            }
+            
+            // ใช้ users ที่ถูกปรับปรุงแล้ว (รวมถึง admin หลักรหัสผ่านใหม่) ในการค้นหา
+            const foundUser = users.find(user => 
+                (user.username === usernameInput) && user.password === passwordInput
+            );
+
+            if (foundUser) {
+                // Login สำเร็จ
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('username', foundUser.username);
+                sessionStorage.setItem('role', foundUser.role || 'user'); 
+                
+                // ตรวจสอบบทบาทและเปลี่ยนเส้นทาง
+                if (foundUser.role === 'admin') {
+                    window.location.href = 'admin.html'; // ไปหน้า Admin Panel
+                } else {
+                    window.location.href = 'main.html'; // 💡 แก้ไข: ไปหน้า Dashboard ปกติ (main.html)
+                }
+            } else {
+                // Login ไม่สำเร็จ
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
